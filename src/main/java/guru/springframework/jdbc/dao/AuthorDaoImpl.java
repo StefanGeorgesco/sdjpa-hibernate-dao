@@ -31,9 +31,9 @@ public class AuthorDaoImpl implements AuthorDao {
     public Author findAuthorByName(String firstName, String lastName) {
         EntityManager em = getEntityManager();
         TypedQuery<Author> query = em.createQuery("SELECT a FROM Author a " +
-                "WHERE a.firstName = :first_name and a.lastName = :last_name", Author.class);
-        query.setParameter("first_name", firstName);
-        query.setParameter("last_name", lastName);
+                "WHERE a.firstName = :firstName and a.lastName = :lastName", Author.class);
+        query.setParameter("firstName", firstName);
+        query.setParameter("lastName", lastName);
 
         Author author = query.getSingleResult();
         em.close();
@@ -60,8 +60,7 @@ public class AuthorDaoImpl implements AuthorDao {
             em.merge(author);
             em.flush();
             em.clear();
-            Author saveAuthor = em.find(Author.class, author.getId());
-            return saveAuthor;
+            return em.find(Author.class, author.getId());
         } finally {
             em.close();
         }
