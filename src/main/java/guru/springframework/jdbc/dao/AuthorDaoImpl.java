@@ -21,17 +21,24 @@ public class AuthorDaoImpl implements AuthorDao {
 
     @Override
     public Author getById(Long id) {
-        return getEntityManager().find(Author.class, id);
+        EntityManager em = getEntityManager();
+        Author author = em.find(Author.class, id);
+        em.close();
+
+        return author;
     }
 
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
-        TypedQuery<Author> query = getEntityManager().createQuery("SELECT a FROM Author a " +
+        EntityManager em = getEntityManager();
+        TypedQuery<Author> query = em.createQuery("SELECT a FROM Author a " +
                 "WHERE a.firstName = :firstName and a.lastName = :lastName", Author.class);
         query.setParameter("firstName", firstName);
         query.setParameter("lastName", lastName);
+        Author author = query.getSingleResult();
+        em.close();
 
-        return query.getSingleResult();
+        return author;
     }
 
     @Override
@@ -41,17 +48,23 @@ public class AuthorDaoImpl implements AuthorDao {
         em.persist(author);
         em.flush();
         em.getTransaction().commit();
+        em.close();
+
         return author;
     }
 
     @Override
     public Author updateAuthor(Author author) {
         EntityManager em = getEntityManager();
-        em.joinTransaction();
+        em.getTransaction().begin();
         em.merge(author);
         em.flush();
         em.clear();
-        return em.find(Author.class, author.getId());
+        Author savedAuthor = em.find(Author.class, author.getId());
+        em.getTransaction().commit();
+        em.close();
+
+        return savedAuthor;
     }
 
     @Override
@@ -62,6 +75,7 @@ public class AuthorDaoImpl implements AuthorDao {
         em.remove(author);
         em.flush();
         em.getTransaction().commit();
+        em.close();
     }
 
     private EntityManager getEntityManager(){
