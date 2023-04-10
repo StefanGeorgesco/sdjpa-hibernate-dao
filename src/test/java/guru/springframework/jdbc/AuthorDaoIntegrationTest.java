@@ -67,6 +67,7 @@ public class AuthorDaoIntegrationTest {
         Author author = authorDao.findAuthorByName("Craig", "Walls");
 
         assertThat(author).isNotNull();
+        assertThat(author.getId()).isEqualTo(1L);
     }
 
     @Test
