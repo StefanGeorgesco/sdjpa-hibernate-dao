@@ -12,6 +12,8 @@ public interface BookDao {
 
     Book getById(Long id);
 
+    Book findBookByTitleNative(String title);
+
     Book findBookByTitleCriteria(String title);
 
     Book findBookByTitle(String title);
@@ -23,4 +25,5 @@ public interface BookDao {
     void deleteBookById(Long id);
 
     List<Book> findAll();
+
 }
