@@ -10,9 +10,11 @@ import java.util.List;
 public interface AuthorDao {
     List<Author> findAll();
 
-    List<Author> listAuthorByLastNameLike(String lastName);
+    List<Author> listAuthorByLastNameLike(String searchString);
 
     Author getById(Long id);
+
+    Author findAuthorByNameCriteria(String firstName, String lastName);
 
     Author findAuthorByName(String firstName, String lastName);
 
@@ -22,5 +24,4 @@ public interface AuthorDao {
 
     void deleteAuthorById(Long id);
 
-    Author findAuthorByNameCriteria(String craig, String walls);
 }
