@@ -22,59 +22,74 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public Author getById(Long id) {
         EntityManager em = getEntityManager();
-        Author author = getEntityManager().find(Author.class, id);
-        em.close();
+        Author author;
+        try {
+            author = getEntityManager().find(Author.class, id);
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
         EntityManager em = getEntityManager();
-        TypedQuery<Author> query = em.createQuery("SELECT a FROM Author a " +
-                "WHERE a.firstName = :firstName and a.lastName = :lastName", Author.class);
-        query.setParameter("firstName", firstName);
-        query.setParameter("lastName", lastName);
+        Author author;
+        try {
+            TypedQuery<Author> query = em.createQuery("SELECT a FROM Author a " +
+                    "WHERE a.firstName = :firstName and a.lastName = :lastName", Author.class);
+            query.setParameter("firstName", firstName);
+            query.setParameter("lastName", lastName);
 
-        Author author = query.getSingleResult();
-        em.close();
+            author = query.getSingleResult();
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author saveNewAuthor(Author author) {
         EntityManager em = getEntityManager();
-        em.getTransaction().begin();
-        em.persist(author);
-        em.flush();
-        em.getTransaction().commit();
-        em.close();
+        try {
+            em.getTransaction().begin();
+            em.persist(author);
+            em.flush();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author updateAuthor(Author author) {
         EntityManager em = getEntityManager();
-
+        Author savedAuthor;
         try {
             em.joinTransaction();
             em.merge(author);
             em.flush();
             em.clear();
-            return em.find(Author.class, author.getId());
+            savedAuthor = em.find(Author.class, author.getId());
         } finally {
             em.close();
         }
+        return savedAuthor;
     }
 
     @Override
     public void deleteAuthorById(Long id) {
         EntityManager em = getEntityManager();
-        em.getTransaction().begin();
-        Author author = em.find(Author.class, id);
-        em.remove(author);
-        em.flush();
-        em.getTransaction().commit();
-        em.close();
+        try {
+            em.getTransaction().begin();
+            Author author = em.find(Author.class, id);
+            em.remove(author);
+            em.flush();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     private EntityManager getEntityManager(){
