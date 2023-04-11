@@ -10,7 +10,7 @@ import java.util.List;
 public interface AuthorDao {
     List<Author> findAll();
 
-    List<Author> listAuthorByLastNameLike(String lastName);
+    List<Author> listAuthorByLastNameLike(String searchString);
 
     Author getById(Long id);
 
