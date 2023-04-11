@@ -12,6 +12,8 @@ public interface BookDao {
 
     Book getById(Long id);
 
+    Book findBookByTitleCriteria(String cleanCode);
+
     Book findBookByTitle(String title);
 
     Book saveNewBook(Book book);
@@ -21,4 +23,5 @@ public interface BookDao {
     void deleteBookById(Long id);
 
     List<Book> findAll();
+
 }
