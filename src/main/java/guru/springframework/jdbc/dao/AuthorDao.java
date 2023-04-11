@@ -14,6 +14,8 @@ public interface AuthorDao {
 
     Author getById(Long id);
 
+    Author findAuthorByNameNative(String firstName, String lastName);
+
     Author findAuthorByNameCriteria(String firstName, String lastName);
 
     Author findAuthorByName(String firstName, String lastName);
