@@ -1,14 +1,14 @@
 package guru.springframework.jdbc.dao;
 
 import guru.springframework.jdbc.domain.Author;
+import jakarta.persistence.Query;
 import org.springframework.stereotype.Component;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.Query;
-import java.util.List;
 
+import java.util.List;
 
 /**
  * Created by jt on 8/28/21.
@@ -25,108 +25,104 @@ public class AuthorDaoImpl implements AuthorDao {
     @Override
     public List<Author> findAll() {
         EntityManager em = getEntityManager();
-
-        try{
+        List<Author> authors;
+        try {
             TypedQuery<Author> typedQuery = em.createNamedQuery("author_find_all", Author.class);
-
-            return typedQuery.getResultList();
+            authors = typedQuery.getResultList();
         } finally {
             em.close();
         }
+        return authors;
     }
 
     @Override
-    public List<Author> listAuthorByLastNameLike(String lastName) {
+    public List<Author> listAuthorByLastNameLike(String searchString) {
         EntityManager em = getEntityManager();
+        List<Author> authors;
 
         try {
-            Query query = em.createQuery("SELECT a from Author a where a.lastName like :last_name");
-            query.setParameter("last_name", lastName + "%");
-            List<Author> authors = query.getResultList();
-
-            return authors;
+            Query query = em.createQuery("select a from Author a where a.lastName like :likeSearchString");
+            query.setParameter("likeSearchString", "%" + searchString + "%");
+            authors = query.getResultList();
         } finally {
             em.close();
         }
+        return authors;
     }
 
     @Override
     public Author getById(Long id) {
         EntityManager em = getEntityManager();
-        Author author = getEntityManager().find(Author.class, id);
-        em.close();
+        Author author;
+        try {
+            author = getEntityManager().find(Author.class, id);
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author findAuthorByName(String firstName, String lastName) {
         EntityManager em = getEntityManager();
+        Author author;
+        try {
+            TypedQuery<Author> query = em.createNamedQuery("author_find_by_name", Author.class);
+            query.setParameter("firstName", firstName);
+            query.setParameter("lastName", lastName);
 
-        TypedQuery<Author> query = em.createNamedQuery("find_by_name", Author.class);
-
-        query.setParameter("first_name", firstName);
-        query.setParameter("last_name", lastName);
-
-        Author author = query.getSingleResult();
-        em.close();
+            author = query.getSingleResult();
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author saveNewAuthor(Author author) {
         EntityManager em = getEntityManager();
-        em.getTransaction().begin();
-        em.persist(author);
-        em.flush();
-        em.getTransaction().commit();
-        em.close();
+        try {
+            em.getTransaction().begin();
+            em.persist(author);
+            em.flush();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
         return author;
     }
 
     @Override
     public Author updateAuthor(Author author) {
         EntityManager em = getEntityManager();
-
+        Author savedAuthor;
         try {
             em.joinTransaction();
             em.merge(author);
             em.flush();
             em.clear();
-            Author saveAuthor = em.find(Author.class, author.getId());
-            return saveAuthor;
+            savedAuthor = em.find(Author.class, author.getId());
         } finally {
             em.close();
         }
+        return savedAuthor;
     }
 
     @Override
     public void deleteAuthorById(Long id) {
         EntityManager em = getEntityManager();
-        em.getTransaction().begin();
-        Author author = em.find(Author.class, id);
-        em.remove(author);
-        em.flush();
-        em.getTransaction().commit();
-        em.close();
+        try {
+            em.getTransaction().begin();
+            Author author = em.find(Author.class, id);
+            em.remove(author);
+            em.flush();
+            em.getTransaction().commit();
+        } finally {
+            em.close();
+        }
     }
 
     private EntityManager getEntityManager(){
         return emf.createEntityManager();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
